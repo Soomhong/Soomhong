@@ -3,147 +3,153 @@
 #include <time.h>
 #include <string.h>
 
-#define dic_size	5
-#define word_len	10
+#define word_number 5
+#define word_len 10
 
-char g_dic[dic_size][word_len]={ //사전 내 단어 설정 
-	"father"
-	,"mother"
-	,"dog"
-	,"hello"
+char Word[word_number][word_len] = { // 설정한 단어 내용 5개 변경 가능 ㅎㅅㅇ
+	"cpro"
+	,"programing"
+	,"hangman"ㅎ 
+	,"expand"
+	,"quest"
 };
 
-int g_step = 0; // 다음 단계 변수 설 저 
+int g_step = 0; //전역 변수
 
-void ingame(char* com, char* p){
-	int index;
+void choose_word(char *com, char *player) {
+	int a;
 	int i;
 	int len;
 	
-	srand(time(NULL)); //난 수 
+	srand(time(NULL)); //난수 설정
 	
-	index=rand()%dic_size;// 인덱스는 0~4 중 하나 
-	
-	strcpy(com, g_dic[index]); // com에 사전의 내용 입 
-	
-	len=strlen(com); //문자열 길이 확 인 
-	
-	for(i=0; i<len; i++){ //단어에 *표 표시 
-		p[i]='*';
-		
+	a = rand() % word_number; // 무작위로 word 중 한단어 선택
+
+	strcpy(com, Word[a]); //com에 단어 복사
+
+	len = strlen(com); //len에 단어 길이 입력 
+
+	for (i = 0; i < len; i++) { // player의 배열에 *채우기
+		player[i] = '*';
 	}
-	p[i]='\0';
-	
-	
+	player[i] = '\0';
 }
-int inputdata(char com[word_len], char p[word_len]){
+
+int data(char com[word_len], char player[word_len]) {
 	char msg[5];
 	char key;
-	
+
 	int len;
 	int check;
 	int i;
-	
-	
-	printf(" Hint: %s \n", p); // ex) Hint: ****로 표 시 
-	printf(" input data: "); 
-	scanf("%s", msg); //문자를 입력 받음 
+
+
+	printf(" Hint: %s \n", player); // 난수로 결정된 단어를 Hint: ****로 표 시 
+	printf(" input data: ");
+	scanf("%s", msg); //문자열을 입력 받음, 단어를 맞추는 과정 
 	key = msg[0];
-	
-	len = strlen(p);
-	
-	check = 0;
-	
-	for(i=0; i<len; i++){
-		if(com[i]==key && p[i]=='*'){
-			p[i]=key;
-			check = 1;
+
+	len = strlen(player);
+
+	check = 0; //해당하는 단어 입력시 return 값은 0
+
+	for (i = 0; i < len; i++) {
+		if (com[i] == key && player[i] == '*') {
+			player [i] = key;
+			check = 1; // 틀리면 1 반환
 		}
 	}
-	
+
 	return check;
 }
 
-void next(){
-	g_step++;
-	printf("hang man:%d\n",g_step); //다음 단계로 넘어가는 함수 
+void next() {
+	g_step++; // 스위치에 들어갈 수치화된 변수 증가
+	printf("Hangman : %d\n", g_step); //행맨 단계 표시
 }
-void showman(){ // 행맨 그림 
-	switch(g_step){
-		case 0:
+
+void show() { // 행맨 그림 
+	switch (g_step) {
+	case 0:
 			printf("	┌──┐\n");
-			printf("		  │\n");
-			printf("		  │\n");
-			printf("		  │\n");
-			printf("		  │\n");
+			printf("          │\n");
+			printf("          │\n");
+			printf("          │\n");
+			printf("          │\n");
 		
 			break;
 		case 1:
-			printf("	┌──┐\n");
-			printf("	●	  │\n");
-			printf("		  │\n");
-			printf("		  │\n");
-			printf("		  │\n");
+			printf("	┌────┐\n");
+			printf("	●   │\n");
+			printf("             │\n");
+			printf("             │\n");
+			printf("             │\n");
 		
 			break;	
 		
 		case 2:
-			printf("	┌──┐\n");
-			printf("	●	  │\n");
-			printf("	┼	  │\n");
-			printf("		  │\n");
-			printf("		  │\n");
+			printf("	┌────┐\n");
+			printf("	●   │\n");
+			printf("        ┼    │\n");
+			printf("             │\n");
+			printf("             │\n");
 		
 			break;
 			
 		case 3:
-			printf("	┌──┐\n");
-			printf("	●	  │\n");
-			printf("	┼	  │\n");
-			printf("	│	  │\n");
-			printf("		  │\n");
+			printf("	┌────┐\n");
+			printf("	●   │\n");
+			printf("        ┼    │\n");
+			printf("        │    │\n");
+			printf("             │\n");
 		
 			break;
 		
 		case 4:
-			printf("	┌──┐\n");
-			printf("	●	  │\n");
-			printf("	┼	  │\n");
-			printf("	│	  │\n");
-			printf("   ┌┐	  │\n");
-		
-			break;
-		
+			printf("	┌────┐\n");
+			printf("	●   │\n");
+			printf("        ┼    │\n");
+			printf("        │    │\n");
+			printf("        /┐   │\n");
+
+		break;
+
 		default:
-			break;
+			
+		break;
 	}
 }
-int checkgameover(char* com, char* p){ // 게임이 끝내는 경우의 함수 
-	if(4==g_step){
+
+int gameover(char* com, char* player) {
+
+	if (4 == g_step) { // 전역 변수가 4가되면 행맨이 다 그려져서 게임이 끝남..
 		return 1;
 	}
-	if(0==strcmp(com, p)){
+	if (0 == strcmp(com, player)) { // 전역변수가 0이면 맞춰서 게임이 끝남..
 		return 1;
 	}
-	
-	return 0;
+
+	return 0; //둘 다 아니라면 0이 반환
 }
+
 int main() {
 	char com[word_len];
-	char p[word_len];
-	
-	ingame(com, p);
-	
-	while(1){
-		if(0 == inputdata(com,p)){
+	char player[word_len];
+
+	choose_word(com, player);
+
+	while (1) {
+		if (0 == data(com, player)) { //data 함수에서 0이 반환되면 교수형 단계 진행
 			next();
-			showman(); 
-			
+			show();
+
 		}
-		
-		if(1==checkgameover(com, p)){
-			break; 
+
+		if (1 == gameover(com, player)) { //gameover 함수에서 1이 반환되면 함수의 조건 내에서 게임 종료
+			break;
 		}
 	}
+
 	return 0;
 }
+
