@@ -125,7 +125,7 @@ int gameover(char* com, char* player) {
 	if (4 == g_step) { // 전역 변수가 4가되면 행맨이 다 그려져서 게임이 끝남..
 		return 1;
 	}
-	if (0 == strcmp(com, player)) { // 전역변수가 0이면 맞춰서 게임이 끝남..
+	if (0 == strcmp(com, player)) { // 입력한 단어가 동일하면 단어를 맞춰서 게임이 끝남 ㅎㅅㅎ
 		return 1;
 	}
 
