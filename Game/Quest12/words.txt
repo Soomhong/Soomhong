@@ -1,0 +1,6 @@
+book,
+pencil,
+cup,
+light,
+phone,
+computer
