@@ -3,7 +3,7 @@
 #include <conio.h>
 
 
-#define Up			72
+#define Up		72
 #define Down		80
 #define Left		75
 #define Right		77
