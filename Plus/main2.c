@@ -31,6 +31,7 @@
 
 int stat_y_goal;
 int stat_y_level;
+int stat_y_score;
 
 
 void gotoxy(int x, int y) {
@@ -90,8 +91,11 @@ int key;
 
 int speed;
 int level; 
-int level_goal; 
+int level_goal;
 int cnt;
+int score;
+int last_score = 0;
+int best_score = 0;
 
 int new_block_on = 0; 
 int crush_on = 0;
@@ -156,9 +160,12 @@ void draw_map() {
     gotoxy(stat_x_adj, y + 6); printf("|               | ");
     gotoxy(stat_x_adj, y + 7); printf("|               | ");
     gotoxy(stat_x_adj, y + 8); printf("+---------------+ ");
-	gotoxy(stat_x_adj, y + 10); printf("  △   : Shift        SPACE : Hard Drop");
-    gotoxy(stat_x_adj, y + 11); printf("◁  ▷ : Left / Right   P   : Pause");
-    gotoxy(stat_x_adj, y + 12); printf("  ▽   : Soft Drop     ESC  : Quit");
+    gotoxy(stat_x_adj, y + 10); printf("Your SCORE : %5d", score);
+    stat_y_score = y + 10;
+    gotoxy(stat_x_adj, y + 12); printf("Last SCORE : %5d", last_score);
+	gotoxy(stat_x_adj, y + 14); printf("  △   : Shift        SPACE : Hard Drop");
+    gotoxy(stat_x_adj, y + 15); printf("◁  ▷ : Left / Right   P   : Pause");
+    gotoxy(stat_x_adj, y + 16); printf("  ▽   : Soft Drop     ESC  : Quit");
 }
 
 void draw_main() {
@@ -280,16 +287,18 @@ void check_line() {
 
     int block_amount;
     int combo = 0; 
-
+	
     for (i = Map_h - 2; i > 3;) {
         block_amount = 0; 
         for (j = 1; j < Map_w - 1; j++) {
             if (main_org[i][j] > 0) block_amount++;
         }
         if (block_amount == Map_w - 2) {
-            if (level_up_on == 0) {         
+            if (level_up_on == 0) {
+				score += 100 * level;   
                 cnt++;
-                combo++; 
+                combo++;
+                
             }
             for (k = i; k > 1; k--) { 
                 for (l = 1; l < Map_w - 1; l++) {
@@ -304,11 +313,12 @@ void check_line() {
         if (combo > 1) { 
             gotoxy(Map_w_adj + (Map_w / 2) - 1, Map_h_adj + by - 2); printf("%d COMBO!", combo);
             Sleep(500);
-            
+            score += (100 * combo * level);
             reset_main_cpy();
 
         }
         gotoxy(stat_x_adj, stat_y_goal); printf(" GOAL  : %5d", (cnt <= 10) ? 10 - cnt : 0);
+        gotoxy(stat_x_adj, stat_y_score); printf("Your SCORE : %5d", score);
     }
 }
 
@@ -490,7 +500,14 @@ void check_level_up() {
 }
 
 void reset() {
-
+	
+	FILE* file = fopen("score.dat", "rt");
+    if (file == 0) { best_score = 0; } 
+    else {
+        fscanf(file, "%d", &best_score);
+        fclose(file);
+    }
+    
     level = 1; 
     level_goal = 1000;
     key = 0;
@@ -520,16 +537,35 @@ void check_game_over() {
             gotoxy(x, y + 2); printf("▤  +-----------------------+   ▤");
             gotoxy(x, y + 3); printf("▤  |  G A M E  O V E R..   |   ▤");
             gotoxy(x, y + 4); printf("▤  +-----------------------+   ▤");
-            gotoxy(x, y + 5); printf("▤                              ▤");
-            gotoxy(x, y + 6); printf("▤  Press any key to restart..  ▤");
+            gotoxy(x, y + 5); printf("▤         Score : %d            ▤", score);
+            gotoxy(x, y + 6); printf("▤       Best Score : %d     ▤", best_score);
             gotoxy(x, y + 7); printf("▤                              ▤");
-            gotoxy(x, y + 8); printf("▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤");
-
+            gotoxy(x, y + 8); printf("▤  Press any key to restart..  ▤");
+            gotoxy(x, y + 9); printf("▤                              ▤");
+            gotoxy(x, y + 10); printf("▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤");
+			
+			last_score = score;
+			
+			if(score > best_score){
+				FILE*file = fopen("score.dat", "wt");
+				
+				gotoxy(x, y + 6); printf("   BEST SCORE!!!   ");
+				
+				if (file == 0) {
+                    gotoxy(0, 0);
+                    printf("File Error\"SCORE.DAT\"");
+                }
+                else {
+                    fprintf(file, "%d", score);
+                    fclose(file);
+                }
+			}
             Sleep(1000);
             while (kbhit()) getch();
             key = getch();
             reset();
         }
+        
         else if(level == 10) { 
             gotoxy(x, y + 0); printf("▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤▤");  
             gotoxy(x, y + 1); printf("▤                              ▤");
@@ -614,6 +650,4 @@ void pause() {
 }
 
 
-
-/*타이틀 목록 선택 추가
-
+//점수 추가, 게임 진행판 옆에 지난 트라이 점수, 현재 점수 표기, 게임오버 화면에 이번 트라이 점수와 score.dat 파일에 저장된 가장 높은 점수 표시 0309
